@@ -5,10 +5,19 @@ import random
 from shared_constants import *
 
 
-def generate_triplet_dataframe(df_labels, id_column, type_column, n_anchors):
+def generate_hard_triplet_dataframe(df_labels, id_column, type_column, n_anchors, model):
+    return generate_triplet_dataframe(df_labels, id_column, type_column, n_anchors)
+
+
+def generate_random_triplet_dataframe(df_labels, id_column, type_column, n_anchors):
+    return generate_triplet_dataframe(df_labels, id_column, type_column, n_anchors)
+
+
+def generate_triplet_dataframe(df_labels, id_column, type_column, n_anchors, model=None):
     unique_types = df_labels[type_column].unique()
     df_anchors = findAllAnchors(df_labels)
     results = []
+    random.seed()
     for anchor_type in unique_types:
         other_types = np.setdiff1d(unique_types, anchor_type)
         anchors = find_anchors(df_labels, anchor_type, type_column, n_anchors)
@@ -16,13 +25,21 @@ def generate_triplet_dataframe(df_labels, id_column, type_column, n_anchors):
             positives = find_positives(df_labels, anchor, anchor_type, type_column)
             negatives = find_negatives(df_labels, other_types, type_column)
             for ni, n in negatives.iterrows():
-                for pi, p in positives.iterrows():
-                    results.append([anchor[id_column], anchor[type_column], anchor[ENCODING_COL], p[id_column], p[type_column],
-                                    p[ENCODING_COL], n[id_column], n[type_column], n[ENCODING_COL]])
+                if model is None:
+                    selected_positives = select_positives(anchor, positives)
+                for p in selected_positives:
+                    results.append(
+                        [anchor[id_column], anchor[type_column], anchor[ENCODING_COL], p[id_column], p[type_column],
+                         p[ENCODING_COL], n[id_column], n[type_column], n[ENCODING_COL]])
     return df_anchors, pd.DataFrame(results,
-                        columns=['anchor_id', 'anchor_type', 'anchor_encoding',
-                                 'positive_id', 'positive_type', 'positive_encoding',
-                                 'negative_id', 'negative_type', 'negative_encoding'])
+                                    columns=['anchor_id', 'anchor_type', 'anchor_encoding',
+                                             'positive_id', 'positive_type', 'positive_encoding',
+                                             'negative_id', 'negative_type', 'negative_encoding'])
+
+
+def select_positives(anchor, positives):
+    selected = random.randint(0, positives.shape[0] - 1)
+    return [positives.iloc[selected]]
 
 
 def findAllAnchors(df_labels):
