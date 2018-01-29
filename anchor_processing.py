@@ -1,10 +1,10 @@
 import numpy as np
 from sklearn.cluster import MiniBatchKMeans
 
-from shared_constants import *
+from shared_module import *
 
 
-def find_anchors_positives(df_labels, id_column, type_column, n_anchors):
+def process_anchors(df_labels, id_column, type_column, n_anchors):
     # get all the unique identities
     unique_ids = df_labels[type_column].unique()
     # for each unique_id cluster the labels and find n_anchors
@@ -86,3 +86,5 @@ def find_closest(id_set, encoding_dict, centroid):
             closest = encoding
             closest_label = i
     return closest_label
+
+
