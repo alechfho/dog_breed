@@ -13,13 +13,10 @@ from shared_module import *
 def input_encoding_model(encoded):
     X_input = Input(encoded)
 
-    X = Dense(4096, activation='sigmoid', name='fc0.0')(X_input)
-    X = Dense(2056, activation='sigmoid', name='fc0.1')(X)
-    X = Dense(1024, activation='sigmoid', name='fc1.0')(X)
-    X = Dense(1024, activation='sigmoid', name='fc1.1')(X)
-    X = Dense(512, activation='sigmoid', name='fc2')(X)
+    # X = Dense(2056, activation='sigmoid', name='fc0.0')(X_input)
+    X = Dense(1024, activation='sigmoid', name='fc1.0')(X_input)
+    # X = Dense(512, activation='sigmoid', name='fc2.0')(X)
     X = Dense(128, activation='sigmoid', name='fc3.0')(X)
-    X = Dense(128, activation='sigmoid', name='fc3.1')(X)
 
     model = Model(inputs=X_input, outputs=X, name='inputEncodingModel')
 
@@ -193,8 +190,8 @@ def predict_on_model(df_labels, encoding_function):
         if row['breed'] != predicted_breed:
             prediction_error_count += 1
 
-    df_labels['predicted_breed'] = prediction
-    df_labels['prediction'] = (df_labels['predicted_breed'] == df_labels['breed'])
+    df_labels['prediction_breed'] = prediction
+    df_labels['prediction'] = (df_labels['prediction_breed'] == df_labels['breed'])
     df_labels['prediction_id'] = prediction_ids
     df_labels['prediction_encoding'] = prediction_encodings
 
