@@ -8,6 +8,7 @@ IMAGE_DIR = '{input}/train-2'.format(input=INPUT_DIR)
 ENCODING_SIZE = 4096
 VGG19_4096 = 'vgg19_' + str(ENCODING_SIZE)
 ANCHORS_10 = 10
+ANCHORS_12 = 12
 
 
 def get_path(dataset_name, n_anchors, encoding_strategy):
