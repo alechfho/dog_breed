@@ -128,7 +128,7 @@ def find_anchors(df_labels, anchor_type, type_column, n_anchors):
 
 
 def find_negatives(df_labels, other_types, type_column):
-    return df_labels.loc[(df_labels[type_column].isin(other_types))]
+    return df_labels.loc[(df_labels[type_column].isin(other_types) & (df_labels[ANP_COL] == 'A'))]
 
 
 def find_positives(df_labels, anchor, anchor_type, type_column):
