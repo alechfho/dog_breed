@@ -5,6 +5,7 @@ input/vgg19_4096
 input/train-2
 input/test-2
 input/*
+*.csv
 .idea/*
 .DS_Store
 __pycache__/

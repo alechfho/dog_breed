@@ -15,7 +15,7 @@ def input_encoding_model(encoded):
 
     # X = Dense(2056, activation='sigmoid', name='fc0.0')(X_input)
     X = Dense(1024, activation='sigmoid', name='fc1.0')(X_input)
-    # X = Dense(512, activation='sigmoid', name='fc2.0')(X)
+    X = Dense(512, activation='sigmoid', name='fc2.0')(X)
     X = Dense(128, activation='sigmoid', name='fc3.0')(X)
 
     model = Model(inputs=X_input, outputs=X, name='inputEncodingModel')
@@ -168,6 +168,23 @@ def get_identities_encoding(df_train, encoding_function):
     return identities, identities_encoded
 
 
+def get_identities_encoding_map(df_train, encoding_function):
+    identities = find_all_anchors(df_train)
+
+    identity_map = {}
+    for i, row in identities.iterrows():
+        breed = row['breed']
+        if not (breed in identity_map.keys()):
+            #print('breed {breed} not in map'.format(breed=breed))
+            identity_map[breed] = []
+        encoding_list = identity_map[breed]
+        #print('loading encoding for {id}'.format(id=row['id']))
+        encoding = encoding_function(np.loadtxt(row[ENCODING_COL]))
+        encoding_list.append(encoding)
+        #print('breed {breed} list {len}'.format(breed=breed, len=len(encoding_list)))
+    return identity_map;
+
+
 def predict_on_model(df_labels, encoding_function):
     identities, identities_encoded = get_identities_encoding(df_labels, encoding_function)
 
@@ -200,3 +217,28 @@ def predict_on_model(df_labels, encoding_function):
     accuracy = (total - bad_predictions) / total
 
     return df_labels, total, bad_predictions, accuracy
+
+
+def save_best_distance(breed_dict, identity, distance):
+    if identity in breed_dict and breed_dict[identity] > distance:
+        breed_dict[identity] = distance
+    else:
+        breed_dict[identity] = distance
+
+
+def predict_on_test_model(df_labels, df_test, breeds, encoding_function):
+    identity_encoding_map = get_identities_encoding_map(df_labels, encoding_function)
+
+    predictions = []
+    for i, row in df_test.iterrows():
+        test_encoding = encoding_function(np.loadtxt(row.encoding))
+        result = []
+        id = row['id']
+        result.append(id)
+        i = 0
+        for breed in breeds:
+            min_dist = np.max(list(map(lambda x: distance(test_encoding, x), identity_encoding_map[breed])))
+            # print('{id} {breed} dist {min_dist}'.format(id=id, breed=breed, min_dist=min_dist))
+            result.append(min_dist)
+        predictions.append(result)
+    return predictions
